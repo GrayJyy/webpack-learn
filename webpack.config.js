@@ -1,3 +1,4 @@
+const ESLintPlugin = require('eslint-webpack-plugin')
 const { join } = require('path')
 
 module.exports = {
@@ -71,6 +72,7 @@ module.exports = {
   // plugin
   plugins: [
     // plugin 配置
+    // new ESLintPlugin(join(__dirname, 'src')), // 表示检测 src 下的文件
   ],
   // 模式
   mode: 'development',
