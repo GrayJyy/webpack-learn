@@ -9,7 +9,7 @@ module.exports = {
     path: `${join(__dirname, 'dist')}`,
     // 入口 js 文件的输出文件名
     filename: 'static/js/main.js',
-    // 自动清空上次打包结果
+    // 在生成文件之前清空 output 目录
     clean: true,
   },
   // loader
@@ -46,7 +46,7 @@ module.exports = {
       },
       {
         test: /\.(png|jpe?g|gif|webp)$/,
-        type: 'asset',
+        type: 'asset', // 相当于`url-loader`, 将文件转化成 Webpack 能识别的资源，同时小于某个大小的资源会处理成 data URI 形式
         parser: {
           dataUrlCondition: {
             // 小于 5kb 的图片转化为 base64 格式 优点：减少请求数 缺点：体积变大（原有图片体积越大，转换后增加的体积也越大）
@@ -56,6 +56,14 @@ module.exports = {
         generator: {
           // 图片资源输出文件名 name是原先的文件名 hash是 dist 生成图片后的前缀(:10是取 hash 前十位,简短方便) hash 值，ext 是拓展名，query 是参数
           filename: 'static/images/[name].[hash:10][ext][query]',
+        },
+      },
+      {
+        // 在这里处理了包括字体 音频 视频等其他资源
+        test: /\.(ttf|woff2?|map4|map3|avi)$/,
+        type: 'asset/resource', // asset/resource 相当于`file-loader`, 将文件转化成 Webpack 能识别的资源，其他不做处理
+        generator: {
+          filename: 'static/media/[hash:8][ext][query]',
         },
       },
     ],
