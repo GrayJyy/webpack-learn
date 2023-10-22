@@ -6,5 +6,5 @@ import './sass/index.sass'
 import './sass/index.scss'
 import './styl/index.styl'
 
-console.log(count(1, 2))
-console.log(sum(1, 2, 3))
+console.log(count(1, 2, 3, 4))
+console.log(sum(1, 2))
