@@ -1,8 +1,27 @@
 const ESLintPlugin = require('eslint-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 const { join } = require('path')
 
+function getStyleLoader(pre) {
+  return [
+    // use 执行顺序为从右到左 - 先执行css-loader再执行style-loader
+    MiniCssExtractPlugin.loader,
+    'css-loader', // 将 css 资源编译成commonjs 的模块到 js 中
+    {
+      loader: 'postcss-loader',
+      options: {
+        postcssOptions: {
+          plugins: [
+            'postcss-preset-env', // 能解决大多数样式兼容性问题
+          ],
+        },
+      },
+    },
+    pre,
+  ].filter(Boolean) // 过滤掉不传的 undefined 情况
+}
 module.exports = {
   // 入口(规定为相对路径)
   entry: './src/main.js',
@@ -24,28 +43,19 @@ module.exports = {
         // loader string 只能使用单个 loader
         // loader:''
         // use [] 可以使用多个 loader
-        use: [
-          // use 执行顺序为从右到左 - 先执行css-loader再执行style-loader
-          MiniCssExtractPlugin.loader, // 将 js 中的 css 通过创建 style 标签添加到 html 文件中生效
-          'css-loader', // 将 css 资源编译成commonjs 的模块到 js 中
-        ],
+        use: getStyleLoader(),
       },
       {
         test: /\.less$/i,
-        use: [
-          // compiles Less to CSS
-          MiniCssExtractPlugin.loader,
-          'css-loader',
-          'less-loader',
-        ],
+        use: getStyleLoader('less-loader'),
       },
       {
         test: /\.s[ac]ss$/i,
-        use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
+        use: getStyleLoader('sass-loader'),
       },
       {
         test: /\.styl$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader', 'stylus-loader'],
+        use: getStyleLoader('stylus-loader'),
       },
       {
         test: /\.(png|jpe?g|gif|webp)$/,
@@ -78,10 +88,6 @@ module.exports = {
         //   presets: ['@babel/preset-env'],
         // },
       },
-      {
-        test: /\.css$/i,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
-      },
     ],
   },
   // plugin
@@ -95,7 +101,9 @@ module.exports = {
       // 如果不写这个template 配置，那么原来在index.html里写的 dom 结构是不会自动引入的
       template: join(__dirname, '../public/index.html'), // 以当前工作目录下的 public/index.html文件为模版创建新的html 文件，这个新的文件结构和模板的一样，并且会自动引入打包的资源(入口 js 文件)
     }),
+    new CssMinimizerPlugin(), // 开启 css 压缩，html 和 js 压缩在生产模式下默认开启，不需要额外配置
   ],
+
   // 生产模式不需要开发服务器 只需要打包输出文件
   //   devServer: {
   //     host: 'localhost', // 启动服务器域名
