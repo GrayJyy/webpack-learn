@@ -5,6 +5,7 @@ const TerserWebpackPlugin = require('terser-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 const ImageMinimizerPlugin = require('image-minimizer-webpack-plugin')
+const WorkboxPlugin = require('workbox-webpack-plugin')
 const { join } = require('path')
 
 const threads = os.cpus().length // cpu 核数
@@ -133,6 +134,12 @@ module.exports = {
     new HtmlWebpackPlugin({
       // 如果不写这个template 配置，那么原来在index.html里写的 dom 结构是不会自动引入的
       template: join(__dirname, '../public/index.html'), // 以当前工作目录下的 public/index.html文件为模版创建新的html 文件，这个新的文件结构和模板的一样，并且会自动引入打包的资源(入口 js 文件)
+    }),
+    new WorkboxPlugin.GenerateSW({
+      // 这些选项帮助快速启用 ServiceWorkers
+      // 不允许遗留任何“旧的” ServiceWorkers
+      clientsClaim: true,
+      skipWaiting: true,
     }),
   ],
   // 压缩优化相关配置 webpack5 推荐写法
