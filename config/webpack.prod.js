@@ -34,7 +34,11 @@ module.exports = {
     // 文件的输出路径
     path: `${join(__dirname, '../dist')}`,
     // 入口 js 文件的输出文件名
-    filename: 'static/js/main.js',
+    filename: 'static/js/[name].js',
+    // 给打包输出的其他文件命名
+    chunkFilename: 'static/js/[name].chunk.js',
+    // 图片 字体 音视频等通过 type:assert处理的资源的统一命名
+    assetModuleFilename: 'static/media/[name].[hash:6][ext][query]',
     // 在生成文件之前清空 output 目录
     clean: true,
   },
@@ -72,18 +76,18 @@ module.exports = {
                 maxSize: 5 * 1024,
               },
             },
-            generator: {
-              // 图片资源输出文件名 name是原先的文件名 hash是 dist 生成图片后的前缀(:10是取 hash 前十位,简短方便) hash 值，ext 是拓展名，query 是参数
-              filename: 'static/images/[name].[hash:10][ext][query]',
-            },
+            // generator: {
+            //   // 图片资源输出文件名 name是原先的文件名 hash是 dist 生成图片后的前缀(:10是取 hash 前十位,简短方便) hash 值，ext 是拓展名，query 是参数
+            //   filename: 'static/images/[name].[hash:10][ext][query]',
+            // },
           },
           {
             // 在这里处理了包括字体 音频 视频等其他资源
             test: /\.(ttf|woff2?|map4|map3|avi)$/,
             type: 'asset/resource', // asset/resource 相当于`file-loader`, 将文件转化成 Webpack 能识别的资源，其他不做处理
-            generator: {
-              filename: 'static/media/[hash:8][ext][query]',
-            },
+            // generator: {
+            //   filename: 'static/media/[hash:8][ext][query]',
+            // },
           },
           {
             test: /\.m?js$/,
@@ -115,7 +119,8 @@ module.exports = {
   plugins: [
     // plugin 配置
     new MiniCssExtractPlugin({
-      filename: 'static/css/main.css',
+      filename: 'static/css/[name].css',
+      chunkFilename: 'static/css/[name].chunk.css',
     }),
     new ESLintPlugin({
       context: join(__dirname, '../src'), // 表示检测 src 下的文件
@@ -168,6 +173,10 @@ module.exports = {
         },
       }),
     ],
+    // 单入口文件 代码分割操作
+    splitChunks: {
+      chunks: 'all',
+    },
   },
   // 生产模式不需要开发服务器 只需要打包输出文件
   //   devServer: {

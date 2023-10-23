@@ -3,7 +3,7 @@ module.exports = {
     browser: true,
     es2021: true,
   },
-  // extends: 'airbnb-base', // 继承 airbnb 标准
+  extends: ['eslint-recommended'], // 继承 eslint 推荐标准
   overrides: [
     {
       env: {
@@ -26,4 +26,5 @@ module.exports = {
   rules: {
     semi: 0,
   },
+  plugins: ['import'], // 适配动态导入语法
 }
