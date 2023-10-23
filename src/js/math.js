@@ -1,4 +1,5 @@
 export function add(x, y) {
+  // console.log(x)
   return x + y
 }
 

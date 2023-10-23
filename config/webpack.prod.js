@@ -35,10 +35,11 @@ module.exports = {
     path: `${join(__dirname, '../dist')}`,
     // 入口 js 文件的输出文件名
     filename: 'static/js/[name].js',
+    // contenthash 根据文件内容输出哈希值
     // 给打包输出的其他文件命名
-    chunkFilename: 'static/js/[name].chunk.js',
+    chunkFilename: 'static/js/[name].[contenthash:6].chunk.js',
     // 图片 字体 音视频等通过 type:assert处理的资源的统一命名
-    assetModuleFilename: 'static/media/[name].[hash:6][ext][query]',
+    assetModuleFilename: 'static/media/[name].[contenthash:6][ext][query]',
     // 在生成文件之前清空 output 目录
     clean: true,
   },
@@ -176,6 +177,9 @@ module.exports = {
     // 单入口文件 代码分割操作
     splitChunks: {
       chunks: 'all',
+    },
+    runtimeChunk: {
+      name: entrypoint => `runtime~${entrypoint.name}.js`,
     },
   },
   // 生产模式不需要开发服务器 只需要打包输出文件
