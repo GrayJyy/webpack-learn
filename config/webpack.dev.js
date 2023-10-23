@@ -7,8 +7,8 @@ module.exports = {
   entry: './src/main.js',
   // 输出(规定为绝对路径)
   output: {
-    // 文件的输出路径
-    path: `${join(__dirname, 'dist')}`,
+    // 文件的输出路径 开发环境无输出
+    // path: `${join(__dirname, '../dist')}`,
     // 入口 js 文件的输出文件名
     filename: 'static/js/main.js',
     // 在生成文件之前清空 output 目录
@@ -82,10 +82,10 @@ module.exports = {
   // plugin
   plugins: [
     // plugin 配置
-    // new ESLintPlugin(join(__dirname, 'src')), // 表示检测 src 下的文件
+    // new ESLintPlugin(join(__dirname, '../src')), // 表示检测 src 下的文件
     new HtmlWebpackPlugin({
       // 如果不写这个template 配置，那么原来在index.html里写的 dom 结构是不会自动引入的
-      template: join(__dirname, 'public/index.html'), // 以当前工作目录下的 public/index.html文件为模版创建新的html 文件，这个新的文件结构和模板的一样，并且会自动引入打包的资源(入口 js 文件)
+      template: join(__dirname, '../public/index.html'), // 以当前工作目录下的 public/index.html文件为模版创建新的html 文件，这个新的文件结构和模板的一样，并且会自动引入打包的资源(入口 js 文件)
     }),
   ],
   // 开发服务器： 启动开发服务器命令npx webpack serve 不会输出dist目录 因此 clean 配置也没意义了 在内存中编译打包 因为开发者在开发中只关心代码是否能正常运行 而不关心代码输出成什么
