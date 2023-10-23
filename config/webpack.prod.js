@@ -4,6 +4,7 @@ const os = require('os')
 const TerserWebpackPlugin = require('terser-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
+const ImageMinimizerPlugin = require('image-minimizer-webpack-plugin')
 const { join } = require('path')
 
 const threads = os.cpus().length // cpu 核数
@@ -101,6 +102,7 @@ module.exports = {
                   // presets: ['@babel/preset-env'], // 这一块写在外面了
                   cacheDirectory: true, // 开启 babel 缓存
                   cacheCompression: false, // 关闭 缓存文件压缩，节约时间 因为这块只是占据电脑的硬盘 关闭可以空间换时间
+                  plugins: ['@babel/plugin-transform-runtime'], // 减少代码体积
                 },
               },
             ],
@@ -136,6 +138,34 @@ module.exports = {
       // 每个 worker 都是一个独立的 node.js 进程，其开销大约为 600ms 左右。同时会限制跨进程的数据交换 请仅在耗时的操作中使用此 loader
       new TerserWebpackPlugin({
         parallel: threads, // 开启多进程压缩
+      }),
+      // 压缩图片
+      new ImageMinimizerPlugin({
+        minimizer: {
+          implementation: ImageMinimizerPlugin.imageminGenerate,
+          options: {
+            plugins: [
+              ['gifsicle', { interlaced: true }],
+              ['jpegtran', { progressive: true }],
+              ['optipng', { optimizationLevel: 5 }],
+              [
+                'svgo',
+                {
+                  plugins: [
+                    'preset-default',
+                    'prefixIds',
+                    {
+                      name: 'sortAttrs',
+                      params: {
+                        xmlnsOrder: 'alphabetical',
+                      },
+                    },
+                  ],
+                },
+              ],
+            ],
+          },
+        },
       }),
     ],
   },

@@ -2,6 +2,7 @@ const ESLintPlugin = require('eslint-webpack-plugin')
 const os = require('os')
 const TerserWebpackPlugin = require('terser-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const ImageMinimizerPlugin = require('image-minimizer-webpack-plugin')
 const { join } = require('path')
 
 const threads = os.cpus().length // cpu 核数
@@ -93,6 +94,13 @@ module.exports = {
                   // presets: ['@babel/preset-env'], // 这一块写在外面了
                   cacheDirectory: true, // 开启 babel 缓存
                   cacheCompression: false, // 关闭 缓存文件压缩，节约时间 因为这块只是占据电脑的硬盘 关闭可以空间换时间
+                  /**
+               当使用 Babel 编译多个文件时，每个文件都可能包含一些相同的辅助函数，
+               例如实现 Promise、Set、Map 等功能的函数。
+               如果每个文件都将这些辅助函数直接复制到转译后的代码中，就会导致重复加载相同的代码，增加了代码体积，并可能导致不必要的性能损耗。
+              通过@babel/plugin-transform-runtime插件可以将辅助函数封装在一个单独的模块中，以避免重复加载，减小体积
+                   */
+                  plugins: ['@babel/plugin-transform-runtime'], // 减少代码体积
                 },
               },
             ],
@@ -117,6 +125,34 @@ module.exports = {
     }),
     new TerserWebpackPlugin({
       parallel: threads, // 开启多进程压缩
+    }),
+    // 压缩图片
+    new ImageMinimizerPlugin({
+      minimizer: {
+        implementation: ImageMinimizerPlugin.imageminGenerate,
+        options: {
+          plugins: [
+            ['gifsicle', { interlaced: true }],
+            ['jpegtran', { progressive: true }],
+            ['optipng', { optimizationLevel: 5 }],
+            [
+              'svgo',
+              {
+                plugins: [
+                  'preset-default',
+                  'prefixIds',
+                  {
+                    name: 'sortAttrs',
+                    params: {
+                      xmlnsOrder: 'alphabetical',
+                    },
+                  },
+                ],
+              },
+            ],
+          ],
+        },
+      },
     }),
   ],
   // 开发服务器： 启动开发服务器命令npx webpack serve 不会输出dist目录 因此 clean 配置也没意义了 在内存中编译打包 因为开发者在开发中只关心代码是否能正常运行 而不关心代码输出成什么
